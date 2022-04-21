@@ -10,4 +10,8 @@ module.exports = app => {
   router.get('/init', controller.home.init);
 
 
+  router.post('/api/login', controller.api.login);
+  router.post('/api/reg', controller.api.reg);
+
+
 };
