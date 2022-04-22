@@ -13,8 +13,8 @@ class HomeController extends Controller {
   async index() {
 
     const { ctx } = this;
-    ctx.body= 123
-    // await ctx.render('index.htm');
+    // ctx.body= 123
+    await ctx.render('index.html');
     // ctx.body = await ctx.renderString(await fs.promises.readFile(path.resolve(__dirname, '../public/index.htm')))
     // ctx.body = await fs.promises.readFile(path.resolve(__dirname, '../public/index.htm'))
   }
