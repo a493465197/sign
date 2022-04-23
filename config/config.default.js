@@ -51,7 +51,7 @@ module.exports = appInfo => {
   // }
   config.mongoose = {
     client:{
-    url:'mongodb://45.77.106.79/yuangong',
+    url:'mongodb://124.221.66.29/book',
     options:{}
     }
   }
