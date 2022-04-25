@@ -34,6 +34,9 @@ module.exports = app => {
             type: Boolean,
             default: false
         },
+        auth: {
+            type: Array
+        }
 
     });
     return mongoose.model('User', UserSchema, 'user');
