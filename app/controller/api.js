@@ -249,15 +249,16 @@ class HomeController extends Controller {
       ctx
     } = this;
     const username = ctx.cookies.get('user')
-    if (ctx.request.body.id) {
+    if (ctx.request.body._id) {
       let data = await this.ctx.model.Book.updateOne({
-        id: ctx.request.body.id
+        _id: ctx.request.body._id
       }, {
         ...ctx.request.body,
         username
       })
 
     } else {
+      delete ctx.request.body._id
       let data = await this.ctx.model.Book.create({
         ...ctx.request.body,
         username
@@ -315,7 +316,7 @@ class HomeController extends Controller {
       ctx
     } = this;
     await this.ctx.model.Book.deleteOne({
-      id: ctx.request.body.id
+      _id: ctx.request.body._id
     });
     ctx.body = {
       code: 0

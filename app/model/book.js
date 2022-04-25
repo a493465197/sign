@@ -25,6 +25,12 @@ module.exports = app => {
             type: String,
             default: Math.random().toString().slice(2,8)
         },
+        mainImg: {
+            type: Object
+        },
+        detailImg: {
+            type: Object
+        },
         time: {
             type: Number,
             default: Date.now()
