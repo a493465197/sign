@@ -11,6 +11,7 @@ module.exports = app => {
 
 
   router.post('/api/login', controller.api.login);
+  router.post('/api/logout', controller.api.logout);
   router.post('/api/reg', controller.api.reg);
   router.get('/api/isLogin', controller.api.isLogin);
   router.get('/api/getInfo', controller.api.getInfo);
@@ -33,4 +34,8 @@ module.exports = app => {
   router.post('/api/getOrderList', controller.api.getOrderList);
   router.post('/api/orderPj', controller.api.orderPj);
   router.post('/api/orderPjList', controller.api.orderPjList);
+
+  router.post('/common/upload', controller.common.upload);
+
+
 };

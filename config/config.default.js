@@ -78,6 +78,7 @@ module.exports = appInfo => {
   return {
     ...config,
     ...userConfig,
+    uploadBaseDir: path.resolve(__dirname, '../app/public/')
 
   };
 };

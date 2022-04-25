@@ -32,6 +32,13 @@ class HomeController extends Controller {
     }
 
   }
+    async logout() {
+    const { ctx } = this;
+    ctx.cookies.set('user', '')
+    ctx.body = {
+      code: 0,
+    }
+  }
   async isLogin() {
 
     const {
