@@ -26,7 +26,7 @@ module.exports = app => {
         },
         orderId: {
             type: String,
-            default: Math.random().toString().slice(2,8)
+            default: () => Math.random().toString().slice(2,8)
         },
         time: {
             type: Number,

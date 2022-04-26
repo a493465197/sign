@@ -13,7 +13,7 @@ module.exports = app => {
 
         pjId: {
             type: String,
-            default: Math.random().toString().slice(2,8)
+            default: () => Math.random().toString().slice(2,8)
         },
         time: {
             type: Number,

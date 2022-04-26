@@ -118,26 +118,26 @@ class HomeController extends Controller {
       code: 0
     }
   }
-  async bookList() {
+  async keyList() {
 
     const {
       ctx
     } = this;
     const username = ctx.cookies.get('user')
 
-    let data = await this.ctx.model.Book.find();
+    let data = await this.ctx.model.Key.find();
     ctx.body = {
       code: 0,
       value: data
     }
   }
-  async book() {
+  async key() {
 
     const {
       ctx
     } = this;
     const username = ctx.cookies.get('user')
-    let data = await this.ctx.model.Book.create({
+    let data = await this.ctx.model.Key.create({
       username,
       ...ctx.request.body
     });
@@ -244,22 +244,22 @@ class HomeController extends Controller {
   }
 
 
-  async addBook() {
+  async addKey() {
     const {
       ctx
     } = this;
     const username = ctx.cookies.get('user')
-    if (ctx.request.body._id) {
-      let data = await this.ctx.model.Book.updateOne({
-        _id: ctx.request.body._id
+    if (ctx.request.body.id) {
+      let data = await this.ctx.model.Key.updateOne({
+        id: ctx.request.body.id
       }, {
         ...ctx.request.body,
         username
       })
 
     } else {
-      delete ctx.request.body._id
-      let data = await this.ctx.model.Book.create({
+      delete ctx.request.body.id
+      let data = await this.ctx.model.Key.create({
         ...ctx.request.body,
         username
       });
@@ -270,148 +270,215 @@ class HomeController extends Controller {
       code: 0
     }
   }
-  async myBookList() {
+  async myKeyList() {
     const {
       ctx
     } = this;
     const username = ctx.cookies.get('user')
 
-    let user = await this.ctx.model.User.findOne({
-      username
-    });
-    let book
+    let user = await this.ctx.model.User.find({username});
+
+    let key
     if (user && user.isAdmin) {
-      book = await this.ctx.model.Book.find();
+      key = await this.ctx.model.Key.find();
       ctx.body = {
         code: 0,
-        value: book
+        value: key
       }
     } else {
-      book = await this.ctx.model.Book.find({
-        username
-      });
+      key = await this.ctx.model.Key.find(
+        {$or: [{username}, {users: {$in: username}}]}
+        
+      );
       ctx.body = {
         code: 0,
-        value: book
+        value: key
       }
     }
   }
-  async buyBookList() {
+  async keyList() {
     const {
       ctx
     } = this;
     const username = ctx.cookies.get('user')
-    let book
-    book = await this.ctx.model.Book.find({
-      buyer: null
+    const body = ctx.request.body
+    const startTime = body.startTime || 1
+    const endTime = body.endTime || 164915607195700
+    delete body.startTime
+    delete body.endTime
+    const queryObj = {
+      time: {
+        $gt: startTime,
+        $lt: endTime
+      },
+      ...body
+    }
+    const key = await this.ctx.model.Key.find({
+      time: {
+        $gt: startTime,
+        $lt: endTime
+      },
+      ...body
+
     });
     ctx.body = {
       code: 0,
-      value: book,
+      value: key
     }
   }
-  async delBook() {
+
+  async delKey() {
 
     const {
       ctx
     } = this;
-    await this.ctx.model.Book.deleteOne({
-      _id: ctx.request.body._id
-    });
-    ctx.body = {
-      code: 0
-    }
-  }
-  async buyBook() {
 
-    const {
-      ctx
-    } = this;
-    const username = ctx.cookies.get('user')
-
-    let data = await this.ctx.model.Book.updateOne({
+    await this.ctx.model.Key.deleteOne({
       id: ctx.request.body.id
-    }, {
-      buyer: username
-    })
-    await this.ctx.model.Order.create({
-      buyer: username,
-      bookId: ctx.request.body.id,
-    })
+    });
+    ctx.body = {
+      code: 0
+    }
+  }
 
+  async sign() {
+    const {
+      ctx
+    } = this;
+    try {
+      const username = ctx.cookies.get('user')
+      const body = ctx.request.body
+      const currFile = body.file?.fileList && body.file?.fileList[0]
+      const fileBin = await fs.promises.readFile(path.resolve(__dirname, '../public' + currFile.response.filePathName))
+      const key = await this.ctx.model.Key.findOne({id: body.keyId})
+      currFile.response.filePathName
+      await this.ctx.model.Sign.create({
+        username,
+        keyId: body.keyId,
+        file: body.file,
+        sign: md5(Array.from(fileBin).join('') + key.key)
+  
+      })
+    }catch (e) {
+      ctx.body = {
+        code: -1,
+        msg: e
+      }
+      return
+    }
 
     ctx.body = {
       code: 0
     }
   }
-  async getOrderList() {
-    const {
-      ctx
-    } = this;
-    const data = await this.ctx.model.Order.aggregate([{
-      $lookup: {
-        from: 'book', // 关联的集合
-        localField: 'bookId', // 本地关联的字段
-        foreignField: 'id', // 对方集合关联的字段
-        // as:'mms',  // 结果字段名,
-        as: 'book'
-      },
-    }])
-
-    ctx.body = {
-      code: 0,
-      value: data
-    }
-  }
-  async orderPj() {
+  async signList() {
 
     const {
       ctx
     } = this;
     const username = ctx.cookies.get('user')
 
-    const data = await this.ctx.model.Pj.create({
-      pj: ctx.request.body.pj,
-      orderId: ctx.request.body.orderId,
-      pjer: username
-    })
+    const list = await this.ctx.model.Sign.aggregate([
+      {
+        $lookup:{
+            from:'key',  // 关联的集合
+            localField:'keyId',  // 本地关联的字段
+            foreignField:'id',  // 对方集合关联的字段
+            as:'key',  // 结果字段名,
+        },
+   
+        
+    },
+    {
+      $match: {
+        username
+      }
+    }
+
+    ])
     ctx.body = {
-      code: 0
+      code: 0,
+      value: list
     }
   }
-  async orderPjList() {
+  async delSign() {
 
     const {
       ctx
     } = this;
+    await this.ctx.model.Sign.deleteOne(ctx.request.body)
+    ctx.body = {
+      code: 0
+    }
+  }
+  async getKeyAuth() {
 
-    const data = await this.ctx.model.Order.aggregate([{
-      $lookup: {
-        from: 'pj', // 关联的集合
-        localField: 'orderId', // 本地关联的字段
-        foreignField: 'orderId', // 对方集合关联的字段
-        as: 'pj'
-      },
+    const {
+      ctx
+    } = this;
+    const username = ctx.cookies.get('user')
+    const old = await this.ctx.model.GetKeyAuth.find({
+      keyId: ctx.request.body.keyId,
+      username,
+      isComp: false
+    })
+    if (old.length) {
+      ctx.body = {
+        code: 0
+      }
+      return
+    }
 
-    },{
-      $lookup: {
-        from: 'book', // 关联的集合
-        localField: 'bookId', // 本地关联的字段
-        foreignField: 'id', // 对方集合关联的字段
-        as: 'book'
-      },
-    }])
+    await this.ctx.model.GetKeyAuth.create({
+      keyId: ctx.request.body.keyId,
+      username
+    })
+    
+    ctx.body = {
+      code: 0
+    }
+  }
+  async getKeyAuthList() {
+
+    const {
+      ctx
+    } = this;
+    const list = await this.ctx.model.GetKeyAuth.aggregate([
+      {
+        $lookup:{
+            from:'key',  // 关联的集合
+            localField:'keyId',  // 本地关联的字段
+            foreignField:'id',  // 对方集合关联的字段
+            as:'key',  // 结果字段名,
+        },
+    }
+    ])
 
     ctx.body = {
       code: 0,
-      value: data.filter((e) => e.pj && e.pj.length)
+      value: list
+    }
+  }
+  async agreeGetKeyAuth() {
+    const {
+      ctx
+    } = this;
+    const body = ctx.request.body
+    
+    const auth = await this.ctx.model.GetKeyAuth.findOne({id: body.id})
+    const key = await this.ctx.model.Key.findOne({id: body.keyId})
+    key.users.push(auth.username)
+    await this.ctx.model.GetKeyAuth.updateOne({id: body.id}, {isComp: true, isAgree: body.isAgree})
+    await this.ctx.model.Key.updateOne({id: body.keyId}, {users: key.users})
+    ctx.body = {
+      code: 0
     }
   }
   async init() {
-
     const {
       ctx
     } = this;
+
     ctx.body = {
       code: 0
     }

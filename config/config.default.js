@@ -51,7 +51,7 @@ module.exports = appInfo => {
   // }
   config.mongoose = {
     client:{
-    url:'mongodb://45.77.106.79/book',
+    url:'mongodb://124.221.66.29:27017/sign',
     options:{}
     }
   }
@@ -71,7 +71,10 @@ module.exports = appInfo => {
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
-    baseUrl: 'http://127.0.0.1:7001/'
+    baseUrl: 'http://127.0.0.1:7001/',
+    multipart: {
+      fileExtensions: ['.apk', '.docx', '.png']
+    }
   };
   
 

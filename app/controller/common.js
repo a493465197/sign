@@ -36,6 +36,11 @@ class HomeController extends Controller {
     writerStream.on('error', function(err) {
         throw err.stack;
     });
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve()
+      }, 100);
+    })
     ctx.body = {
         filePath: filePath,
         fileName: fileName,
