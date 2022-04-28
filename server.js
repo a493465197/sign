@@ -4,5 +4,5 @@ const workers = Number(process.argv[2] || require('os').cpus().length);
 egg.startCluster({
   workers,
   baseDir: __dirname,
-  port: 7003
+  port: 7004
 });
