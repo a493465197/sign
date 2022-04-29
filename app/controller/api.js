@@ -353,7 +353,7 @@ class HomeController extends Controller {
       const key = await this.ctx.model.Key.findOne({id: body.keyId})
 
       await new Promise((resolve) => {
-        child_process.exec(`jarsigner -verbose -keystore /Users/lizheyu/android.keystore -storepass 123456 -signedjar ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName.replace('.apk', 'sign.apk'))} ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName)} lzy`, (error, stdout, stderr) => {
+        child_process.exec(`jarsigner -verbose -keystore /home/lzy/android.keystore -storepass 123456 -signedjar ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName.replace('.apk', 'sign.apk'))} ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName)} lzy`, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`);
           }
