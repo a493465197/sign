@@ -18,6 +18,8 @@ module.exports = app => {
         file: {
             type: Object,
         },
+        jarSignFile: String,
+        jarUnSignFile: String,
         time: {
             type: Number,
             default: Date.now()

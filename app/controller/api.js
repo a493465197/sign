@@ -2,6 +2,7 @@
 const path = require('path')
 const fs = require('fs')
 const Controller = require('egg').Controller;
+const child_process = require('child_process')
 const md5 = require('md5')
 // const puppeteer = require('puppeteer');
 class HomeController extends Controller {
@@ -349,12 +350,23 @@ class HomeController extends Controller {
       const username = ctx.cookies.get('user')
       const body = ctx.request.body
       const currFile = body.file?.fileList && body.file?.fileList[0]
-      const fileBin = await fs.promises.readFile(path.resolve(__dirname, '../public' + currFile.response.filePathName))
       const key = await this.ctx.model.Key.findOne({id: body.keyId})
-      currFile.response.filePathName
+
+      await new Promise((resolve) => {
+        child_process.exec(`jarsigner -verbose -keystore /Users/lizheyu/android.keystore -storepass 123456 -signedjar ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName.replace('.apk', 'sign.apk'))} ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName)} lzy`, (error, stdout, stderr) => {
+          if (error) {
+            console.error(`exec error: ${error}`);
+          }
+          resolve()
+        })
+      })
+      const fileBin = await fs.promises.readFile(path.resolve(__dirname, '../public', '.'+currFile.response.filePathName.replace('.apk', 'sign.apk')))
+
       await this.ctx.model.Sign.create({
         username,
         keyId: body.keyId,
+        jarSignFile: currFile.response.filePathName.replace('.apk', 'sign.apk'),
+        jarUnSignFile: currFile.response.filePathName,
         file: body.file,
         sign: md5(Array.from(fileBin).join('') + key.key)
   
