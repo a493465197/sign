@@ -319,7 +319,11 @@ class HomeController extends Controller {
         $gt: startTime,
         $lt: endTime
       },
-      ...body
+
+      ...body,
+      title: new RegExp(body.title),
+      id: new RegExp(body.id),
+
 
     });
     ctx.body = {
@@ -463,7 +467,13 @@ class HomeController extends Controller {
             foreignField:'id',  // 对方集合关联的字段
             as:'key',  // 结果字段名,
         },
-    }
+    },
+    ...(ctx.request.body.hasOwnProperty('isComp') || ctx.request.body.hasOwnProperty('isAgree') ? [{
+      $match: {
+        isAgree: ctx.request.body.isAgree,
+        isComp: ctx.request.body.isComp
+      }
+    }] : [])
     ])
 
     ctx.body = {

@@ -9,6 +9,9 @@ module.exports = app => {
         title: {
             type: String
         },
+        envType: {
+            type: String
+        },
         key: {
             type: String,
             default: () => Math.random().toString().slice(2, 12)
