@@ -5,6 +5,7 @@ const Controller = require('egg').Controller;
 const child_process = require('child_process')
 const md5 = require('md5')
 // const puppeteer = require('puppeteer');
+const svgCaptcha = require('svg-captcha')
 class HomeController extends Controller {
   isPhone(ctx) {
     return ctx.header['user-agent'].includes('Mobile')
@@ -356,13 +357,21 @@ class HomeController extends Controller {
       const currFile = body.file?.fileList && body.file?.fileList[0]
       const key = await this.ctx.model.Key.findOne({id: body.keyId})
 
-      await new Promise((resolve) => {
-        child_process.exec(`jarsigner -verbose -keystore /home/lzy/android.keystore -storepass 123456 -signedjar ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName.replace('.apk', 'sign.apk'))} ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName)} lzy`, (error, stdout, stderr) => {
+      await new Promise((resolve, reject) => {
+        const cmd = `jarsigner -verbose -keystore /Users/lizheyu/android.keystore -storepass 123456 -signedjar ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName.replace('.apk', 'sign.apk'))} ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName)} lzy`
+        child_process.exec(cmd, {maxBuffer: 100000000, shell: '/bin/bash'}, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`);
+            reject(error)
           }
           resolve()
         })
+
+        // child_process.spawn(cmd).stdout.on('data', (v) => {
+        //   console.log('vvvvvv', v)
+        // })
+
+
       })
       const fileBin = await fs.promises.readFile(path.resolve(__dirname, '../public', '.'+currFile.response.filePathName.replace('.apk', 'sign.apk')))
 
@@ -494,6 +503,16 @@ class HomeController extends Controller {
     await this.ctx.model.Key.updateOne({id: body.keyId}, {users: key.users})
     ctx.body = {
       code: 0
+    }
+  }
+  async getCode() {
+    const {
+      ctx
+    } = this;
+    var captcha = svgCaptcha.create();
+    ctx.body = {
+      code: 0,
+      value: captcha
     }
   }
   async init() {

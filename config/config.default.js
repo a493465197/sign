@@ -73,7 +73,8 @@ module.exports = appInfo => {
     // myAppName: 'egg',
     baseUrl: 'http://127.0.0.1:7001/',
     multipart: {
-      fileExtensions: ['.apk', '.docx', '.png']
+      fileSize: '100mb',
+      fileExtensions: ['.apk']
     }
   };
   
