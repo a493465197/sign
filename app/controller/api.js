@@ -290,7 +290,7 @@ class HomeController extends Controller {
             if (!data.includes('正在')) {
               console.log('输入y')
               setTimeout(() => {
-                instance.stdin.write('是\n')
+                instance.stdin.write('y\n')
 
               }, 100)
 
