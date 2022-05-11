@@ -261,6 +261,61 @@ class HomeController extends Controller {
 
     } else {
       delete ctx.request.body.id
+      ctx.request.body.key = Math.random().toString().slice(2, 12)
+
+      try {
+        await new Promise((resolve, reject) => {
+          const cmd = `keytool -genkey -v -keystore android.keystore -alias ${ctx.request.body.key} -storepass 123456 -keypass 123456 -keyalg RSA -validity 36000`
+          console.log(cmd)
+          const instance = child_process.spawn('keytool', ['-genkey', '-v', '-keystore', 'android.keystore', '-alias', ctx.request.body.key, '-storepass', '123456', '-keypass', '123456', '-keyalg', 'RSA', '-validity', '36000'], {shell: '/bin/bash'})
+          // const instance = child_process.spawn(cmd, [])
+          // console.log(instance)
+
+          instance.stdout.on('data', (data) => {
+            console.log(data)
+          })
+          instance.stdout.on('error', (data) => {
+            console.log('error',data)
+          })
+          instance.stdout.on('end', (data) => {
+            console.log('end', data)
+            setTimeout(() => {
+            resolve()
+              
+            }, 1000);
+            // console.log(data)
+          })
+          instance.stderr.on('data', (data) => {
+            console.log(`stderrdata: ${data}`);
+            if (!data.includes('正在')) {
+              console.log('输入y')
+              setTimeout(() => {
+                instance.stdin.write('是\n')
+
+              }, 100)
+
+            }
+
+          });
+          instance.stderr.on('error', (data) => {
+            console.log(`stderrerror: ${data}`);
+
+          });
+          instance.stdout.on("data", (data) => {
+            console.log(`data: ${data}`);
+        
+
+          });
+        })
+      } catch (e) {
+        ctx.body = {
+          code: -1,
+          msg: e
+
+        }
+      }
+
+
       let data = await this.ctx.model.Key.create({
         ...ctx.request.body,
         username
@@ -358,7 +413,7 @@ class HomeController extends Controller {
       const key = await this.ctx.model.Key.findOne({id: body.keyId})
 
       await new Promise((resolve, reject) => {
-        const cmd = `jarsigner -verbose -keystore /Users/lizheyu/android.keystore -storepass 123456 -signedjar ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName.replace('.apk', 'sign.apk'))} ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName)} lzy`
+        const cmd = `jarsigner -verbose -keystore ${process.cwd()}/android.keystore -storepass 123456 -signedjar ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName.replace('.apk', 'sign.apk'))} ${path.resolve(__dirname, '../public', '.'+currFile.response.filePathName)} ${key.key}`
         child_process.exec(cmd, {maxBuffer: 100000000, shell: '/bin/bash'}, (error, stdout, stderr) => {
           if (error) {
             console.error(`exec error: ${error}`);
