@@ -1,13 +1,16 @@
-# faka-egg
+# 基于jarsign的安卓apk密钥管理及在线签名平台
+使用技术：html/css/js/react/nodejs/mongodb/jarsigner等
 
+测试地址：http://3607h09y06.qicp.vip:7004/
 
+测试账号：管理员账号123 密码123 其他角色自行注册
 
-## QuickStart
+项目介绍：支持安卓apk的密钥生成（jatsigner）和签名，上传下载，多用户完整权限管理系统
 
-<!-- add docs here for user -->
+任何问题联系qq 3167805287 微信 lzraipi
 
-see [egg docs][egg] for more detail.
-
+### 更多项目
+http://zlidev.com/
 ### Development
 
 ```bash
@@ -22,12 +25,3 @@ $ open http://localhost:7001/
 $ npm start
 $ npm stop
 ```
-
-### npm scripts
-
-- Use `npm run lint` to check code style.
-- Use `npm test` to run unit test.
-- Use `npm run autod` to auto detect dependencies upgrade, see [autod](https://www.npmjs.com/package/autod) for more detail.
-
-
-[egg]: https://eggjs.org
